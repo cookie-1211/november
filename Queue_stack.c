@@ -65,7 +65,7 @@ int dequeue(Queue* q){
 int main() {
     Queue q = queue_init();
     for (int i = 1; i < 10; ++i) enqueue(&q, i * i);
-    for (int i = 1; i < 10; ++i)	printf("%d ", dequeue(&q));
+    for (int i = 1; i < 10; ++i) printf("%d ", dequeue(&q));
     putchar('\n');
     return 0;
 }
