@@ -1,0 +1,116 @@
+#include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
+#include <time.h>
+
+struct LinkedList{
+    int value;
+    struct LinkedList* next;
+};
+
+typedef struct LinkedList LinkedList;
+
+struct List{
+    size_t size;
+    LinkedList* head;
+    LinkedList* tail;
+};
+
+typedef struct List List;
+
+List list_init() {
+    List l = {0, NULL, NULL};
+    return l;
+}
+
+LinkedList* init_linkedlist(int value, LinkedList* next) {
+    LinkedList* newnode = malloc(sizeof(LinkedList));
+    newnode->value = value;
+    newnode->next = next;
+    return newnode;
+}
+
+void linkedlist_insert_next(LinkedList* node, int value) {
+    LinkedList* current_next = node->next;
+    LinkedList* newnode = init_linkedlist(value, current_next);
+    node->next = newnode;
+}
+
+void linkedlist_remove_next(LinkedList* node) {
+    if (node == NULL || node->next == NULL) return;
+    LinkedList* current_next = node->next;
+    node->next = node->next->next;
+    free(current_next);
+}
+
+void list_push_front(List* lst, int value) {
+    LinkedList* new_head = init_linkedlist(value, lst->head);
+    lst->head = new_head;
+    if (!lst->size) {
+	    lst->tail = new_head;
+    }
+    lst->size++;
+}
+
+void list_push_back(List* lst, int value){
+	if (lst == NULL) return;
+	LinkedList* newtail = init_linkedlist(value, NULL);
+	if (!lst->size){
+		lst->tail = newtail;
+		lst->head = newtail;
+		lst->size++;}
+	else{
+		lst->tail->next = newtail;
+		lst->tail = newtail;
+		lst->size++;}
+}
+
+int list_pop_front(List* lst) {
+    if (lst == NULL || !lst->size) return 0;
+    LinkedList* current_head = lst->head;
+    int value = current_head == NULL ? 0 : current_head->value;
+    lst->head = lst->head->next;
+    free(current_head);
+    if (!--lst->size) lst->tail = NULL;
+    return value;
+}
+
+void linkedlist_print(LinkedList* node){
+	if (node == NULL) return;
+	while(node != NULL){
+		printf("%d%s", node->value, node->next == NULL ? "\n" : " -> ");
+		node = node->next;}
+}
+
+
+void list_print(List* lst) {
+        if (lst == NULL) return;
+        linkedlist_print(lst->head);
+}
+
+LinkedList* list_find(List* lst, int value){
+	if (lst == NULL) return NULL;
+	LinkedList* node = lst->head;
+	while(node != NULL){
+		if (node->value == value) return node;
+		node = node->next;}
+	return NULL;
+}
+
+
+
+int main() {
+    LinkedList l = list_init();
+	for (int i = 1; i < 5; ++i) {
+		list_push_front(&l, i * i);
+		list_push_back(&l, i * i);
+	}
+	list_print(&l);
+	
+	while (l.size) {
+		list_pop_front(&l);
+		list_print(&l);
+	}
+	list_print(&l);
+	return 0;
+}
