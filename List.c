@@ -43,33 +43,35 @@ void listnode_remove_next(ListNode* node) {
     free(current_next);
 }
 
-void list_push_front(List* l, int value) {
-    ListNode* new_head = init_listnode(value, l->head);
-    l->head = new_head;
-    if (!l->size) l->tail = new_head;
-    ++l->size;
+void list_push_front(List* lst, int value) {
+    ListNode* new_head = init_listnode(value, lst->head);
+    lst->head = new_head;
+    if (!lst->size) {
+	    lst->tail = new_head;
+    }
+    l->size++;
 }
 
-void list_push_back(List* list, int value){
-	if (list == NULL) return;
+void list_push_back(List* lst, int value){
+	if (lst == NULL) return;
 	ListNode* newtail = init_listnode(value, NULL);
-	if (!list->size){
-		list->tail = newtail;
-		list->head = newtail;
-		++list->size;}
+	if (!lst->size){
+		lst->tail = newtail;
+		lst->head = newtail;
+		lst->size++;}
 	else{
 		list->tail->next = newtail;
 		list->tail = newtail;
-		++list->size;}
+		list->size++;}
 }
 
-int list_pop_front(List* l) {
-    if (l == NULL || !l->size) return 0;
-    ListNode* current_head = l->head;
+int list_pop_front(List* lst) {
+    if (lst == NULL || !lst->size) return 0;
+    ListNode* current_head = lst->head;
     int value = current_head == NULL ? 0 : current_head->value;
-    l->head = l->head->next;
+    lst->head = lst->head->next;
     free(current_head);
-    if (!--l->size) l->tail = NULL;
+    if (!--lst->size) lst->tail = NULL;
     return value;
 }
 
@@ -80,31 +82,19 @@ void listnode_print(ListNode* node){
 		node = node->next;}
 }
 
-void list_print(List* l) {
-    if (l == NULL) return;
-    listnode_print(l->head);
+void list_print(List* lst) {
+        if (lst == NULL) return;
+        listnode_print(lst->head);
 }
 
-ListNode* list_find(List* list, int value){
-	if (list == NULL) return NULL;
-	ListNode* node = list->head;
+ListNode* list_find(List* lst, int value){
+	if (lst == NULL) return NULL;
+	ListNode* node = lst->head;
 	while(node != NULL){
 		if (node->value == value) return node;
 		node = node->next;}
 	return NULL;
 }
-
-void list_swap(ListNode* nodebefor1, ListNode* nodebefor2){
-	ListNode nodebefor11 = *nodebefor1;
-	ListNode* nodeafter11 = nodebefor1->next->next;
-	ListNode* nodeafter22 = nodebefor2->next->next;
-	nodebefor1->next = nodebefor2->next;
-	nodebefor1->next->next = nodeafter11;
-	nodebefor2->next = nodebefor11.next;
-	nodebefor2->next->next = nodeafter22;
-}
-
-
 
 
 typedef struct List Queue;
@@ -125,9 +115,17 @@ int dequeue(Queue* q){
 
 
 int main() {
-    Queue q = queue_init();
-    for (int i = 1; i < 10; ++i) enqueue(&q, i * i);
-    for (int i = 1; i < 10; ++i) printf("%d ", dequeue(&q));
-    putchar('\n');
-    return 0;
+        LinkedList l = list_init();
+	for (int i = 1; i < 5; ++i) {
+		list_push_front(&l, i * i);
+		list_push_back(&l, i * i);
+	}
+	list_print(&l);
+	
+	while (l.size) {
+		list_pop_front(&l);
+		list_print(&l);
+	}
+	list_print(&l);
+	return 0;
 }
