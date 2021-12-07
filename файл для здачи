@@ -3,114 +3,93 @@
 #include <stdlib.h>
 #include <time.h>
 
-struct LinkedList{
-    int value;
-    struct LinkedList* next;
-};
 
-typedef struct LinkedList LinkedList;
 
-struct List{
+typedef struct {
+    int* data;
     size_t size;
-    LinkedList* head;
-    LinkedList* tail;
+    size_t capacity;
+} Stack;
+
+
+Stack init_stack(){
+	Stack* st = malloc(sizeof(Stack));
+	st->data = malloc(4 * sizeof(int));
+	st->size = 0;
+	st->capacity = 4;
+	return *st;}
+
+
+void put_stack(Stack *st, int value){	
+	st->data[st->size] = value;
+	st->size++;
+	if (st->size == st->capacity){
+		st->capacity = st->capacity * 2;
+		st->data = realloc(st->data, st->capacity * sizeof(int));}}
+
+int pop_stack(Stack *st){	
+	int n = st->data[st->size - 1];
+	st->size--;
+	if (st->capacity > 4 && 4 * st->size < st->capacity){
+		st->capacity = st->capacity / 2;
+		st->data = realloc(st->data, st->capacity * sizeof(int));}
+	return n;}
+
+
+
+struct Queue{
+    Stack s1;
+    Stack s2;
 };
 
-typedef struct List List;
 
-List list_init() {
-    List l = {0, NULL, NULL};
-    return l;
-}
-
-LinkedList* init_linkedlist(int value, LinkedList* next) {
-    LinkedList* newnode = malloc(sizeof(LinkedList));
-    newnode->value = value;
-    newnode->next = next;
-    return newnode;
-}
-
-void linkedlist_insert_next(LinkedList* node, int value) {
-    LinkedList* current_next = node->next;
-    LinkedList* newnode = init_linkedlist(value, current_next);
-    node->next = newnode;
-}
-
-void linkedlist_remove_next(LinkedList* node) {
-    if (node == NULL || node->next == NULL) return;
-    LinkedList* current_next = node->next;
-    node->next = node->next->next;
-    free(current_next);
-}
-
-void list_push_front(List* lst, int value) {
-    LinkedList* new_head = init_linkedlist(value, lst->head);
-    lst->head = new_head;
-    if (!lst->size) {
-	    lst->tail = new_head;
-    }
-    lst->size++;
-}
-
-void list_push_back(List* lst, int value){
-	if (lst == NULL) return;
-	LinkedList* newtail = init_linkedlist(value, NULL);
-	if (!lst->size){
-		lst->tail = newtail;
-		lst->head = newtail;
-		lst->size++;}
-	else{
-		lst->tail->next = newtail;
-		lst->tail = newtail;
-		lst->size++;}
-}
-
-int list_pop_front(List* lst) {
-    if (lst == NULL || !lst->size) return 0;
-    LinkedList* current_head = lst->head;
-    int value = current_head == NULL ? 0 : current_head->value;
-    lst->head = lst->head->next;
-    free(current_head);
-    if (!--lst->size) lst->tail = NULL;
-    return value;
-}
-
-void linkedlist_print(LinkedList* node){
-	if (node == NULL) return;
-	while(node != NULL){
-		printf("%d%s", node->value, node->next == NULL ? "\n" : " -> ");
-		node = node->next;}
-}
+typedef struct Queue Queue;
 
 
-void list_print(List* lst) {
-        if (lst == NULL) return;
-        linkedlist_print(lst->head);
-}
+Queue queue_init(){
+	Stack s1 = init_stack();
+	Stack s2 = init_stack();
+	Queue q = {s1, s2};
+	return q;}
 
-LinkedList* list_find(List* lst, int value){
-	if (lst == NULL) return NULL;
-	LinkedList* node = lst->head;
-	while(node != NULL){
-		if (node->value == value) return node;
-		node = node->next;}
-	return NULL;
-}
+
+int dequeue(Queue* q){	
+	if (!q->s2.size){
+		size_t size = q->s1.size;
+		for(size_t i = 0; i < size; i++){
+			put_stack(&q->s2, pop_stack(&q->s1));}}
+	return pop_stack(&q->s2);}
+
+
+void enqueue(Queue* q, int value){	
+	put_stack(&q->s1, value);}
 
 
 
 int main() {
-    LinkedList l = list_init();
-	for (int i = 1; i < 5; ++i) {
-		list_push_front(&l, i * i);
-		list_push_back(&l, i * i);
+	int need;
+	scanf("%d", &need);
+    Queue q1 = queue_init();
+    Queue q2 = queue_init();
+    int count = 1;
+    enqueue(&q1, 9);
+    printf("%d. %d ", count, 9);
+
+	while (count < need) {
+		for (int i; i < q1.s2.size; i++) {
+			int n = dequeue(&q1);
+			printf("%d. %d ", count, n);
+			i++;
+			enqueue(&q2, n * 10);
+			enqueue(&q2, n * 10 + 9);
+			q1 = queue_init();
+			for (int j; j < q1.s2.size; j++) {
+				enqueue(&q2, dequeue(&q1));
+				}
+		}
 	}
-	list_print(&l);
-	
-	while (l.size) {
-		list_pop_front(&l);
-		list_print(&l);
-	}
-	list_print(&l);
-	return 0;
+    
+    
+    return 0;
 }
+
