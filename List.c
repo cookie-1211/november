@@ -3,25 +3,26 @@
 #include <stdlib.h>
 #include <time.h>
 
-struct ListNode{
-    int value;
-    struct ListNode* next;
-};
 
+struct ListNode {
+    int value;
+    struct ListNode *next;
+};
 typedef struct ListNode ListNode;
 
-struct List{
+
+typedef struct {
     size_t size;
     ListNode* head;
     ListNode* tail;
-};
+} List;
 
-typedef struct List List;
 
 List list_init() {
     List l = {0, NULL, NULL};
     return l;
 }
+
 
 ListNode* init_listnode(int value, ListNode* next) {
     ListNode* newnode = malloc(sizeof(ListNode));
@@ -30,11 +31,13 @@ ListNode* init_listnode(int value, ListNode* next) {
     return newnode;
 }
 
+
 void listnode_insert_next(ListNode* node, int value) {
     ListNode* current_next = node->next;
     ListNode* newnode = init_listnode(value, current_next);
     node->next = newnode;
 }
+
 
 void listnode_remove_next(ListNode* node) {
     if (node == NULL || node->next == NULL) return;
@@ -43,14 +46,22 @@ void listnode_remove_next(ListNode* node) {
     free(current_next);
 }
 
-void list_push_front(List* lst, int value) {
-    ListNode* new_head = init_listnode(value, lst->head);
-    lst->head = new_head;
-    if (!lst->size) {
-	    lst->tail = new_head;
+
+void listnode_print(ListNode* node) {
+    while (node != NULL) {
+        printf("%d%s", node->value, node->next == NULL ? "\n" : " -> ");
+        node = node->next;
     }
-    l->size++;
 }
+
+
+void list_push_front(List* l, int value) {
+    ListNode* new_head = init_listnode(value, l->head);
+    l->head = new_head;
+    if (!l->size) l->tail = new_head;
+    ++l->size;
+}
+
 
 void list_push_back(List* lst, int value){
 	if (lst == NULL) return;
@@ -60,72 +71,52 @@ void list_push_back(List* lst, int value){
 		lst->head = newtail;
 		lst->size++;}
 	else{
-		list->tail->next = newtail;
-		list->tail = newtail;
-		list->size++;}
+		lst->tail->next = newtail;
+		lst->tail = newtail;
+		lst->size++;}
 }
 
-int list_pop_front(List* lst) {
-    if (lst == NULL || !lst->size) return 0;
-    ListNode* current_head = lst->head;
+
+void list_print(List* l) {
+    if (l == NULL) return;
+    listnode_print(l->head);
+}
+
+
+int list_pop_front(List* l) {
+    if (l == NULL || !l->size) return 0;
+    ListNode* current_head = l->head;
     int value = current_head == NULL ? 0 : current_head->value;
-    lst->head = lst->head->next;
+    l->head = l->head->next;
     free(current_head);
-    if (!--lst->size) lst->tail = NULL;
+    if (!--l->size) l->tail = NULL;
     return value;
 }
 
-void listnode_print(ListNode* node){
-	if (node == NULL) return;
-	while(node != NULL){
-		printf("%d%s", node->value, node->next == NULL ? "\n" : " -> ");
-		node = node->next;}
+
+ListNode* list_find(List* l, int value) {
+    if (l == NULL) return NULL;
+    ListNode* node = l->head;
+    while (node != NULL) {
+        if (node->value == value) return node;
+        node = node->next;
+    }
+    return NULL;
 }
-
-void list_print(List* lst) {
-        if (lst == NULL) return;
-        listnode_print(lst->head);
-}
-
-ListNode* list_find(List* lst, int value){
-	if (lst == NULL) return NULL;
-	ListNode* node = lst->head;
-	while(node != NULL){
-		if (node->value == value) return node;
-		node = node->next;}
-	return NULL;
-}
-
-
-typedef struct List Queue;
-
-Queue queue_init() {
-    return list_init();
-}
-
-void enqueue(Queue* q, int value){
-	list_push_back(q, value);
-}
-
-int dequeue(Queue* q){
-	return list_pop_front(q);
-}
-
-
 
 
 int main() {
-        LinkedList l = list_init();
-	for (int i = 1; i < 5; ++i) {
-		list_push_front(&l, i * i);
-		list_push_back(&l, i * i);
-	}
-	list_print(&l);
-	
-	while (l.size) {
-		list_pop_front(&l);
-		list_print(&l);
-	}
-	list_print(&l);
-	return 0;
+    List l = list_init();
+    for (int i = 1; i < 5; ++i) {
+        list_push_front(&l, i * i);
+        list_push_back(&l, i * i);
+    }
+    list_print(&l);
+
+    while (l.size) {
+        list_pop_front(&l);
+        list_print(&l);
+    }
+    list_print(&l);
+    return 0;
 }
